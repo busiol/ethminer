@@ -31,8 +31,8 @@ using namespace dev;
 
 // Logging
 int g_logVerbosity = 5;
-bool g_noColor = false;
-bool g_syslog = false;
+bool g_logNoColor = false;
+bool g_logSyslog = false;
 
 #ifdef _WIN32
 const char* LogChannel::name() { return EthGray "..."; }
@@ -50,7 +50,7 @@ LogOutputStreamBase::LogOutputStreamBase(char const* _id, unsigned _v):
 	if ((int)_v <= g_logVerbosity)
 	{
 		char const* c_begin = "  " EthViolet;
-		if (g_syslog)
+		if (g_logSyslog)
 		{
 			c_begin = "  " EthNavy;
 			m_sstr << c_begin << std::left << std::setw(8) << getThreadName() << " " EthReset;
@@ -100,7 +100,7 @@ void dev::setThreadName(char const* _n)
 
 void dev::simpleDebugOut(std::string const& _s)
 {
-	if (!g_noColor)
+	if (!g_logNoColor)
 	{
 		std::cerr << _s + '\n';
 		return;

@@ -33,8 +33,8 @@
 
 /// The logging system's current verbosity.
 extern int g_logVerbosity;
-extern bool g_noColor;
-extern bool g_syslog;
+extern bool g_logNoColor;
+extern bool g_logSyslog;
 
 namespace dev
 {

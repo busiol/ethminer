@@ -197,11 +197,11 @@ public:
 			"Specify one or more pool URLs. See below for URL syntax")
 			->group(CommonGroup);
 
-        app.add_flag("--nocolor", g_noColor,
+        app.add_flag("--nocolor", g_logNoColor,
             "Display monochrome log")
             ->group(CommonGroup);
 
-        app.add_flag("--syslog", g_syslog,
+        app.add_flag("--syslog", g_logSyslog,
             "Use syslog appropriate log output (drop timestamp and channel prefix)")
             ->group(CommonGroup);
 
@@ -821,13 +821,13 @@ int main(int argc, char** argv)
 	setenv("GPU_SINGLE_ALLOC_PERCENT", "100");
 
 	if (getenv("SYSLOG"))
-		g_syslog = true;
-	if (g_syslog || (getenv("NO_COLOR")))
-		g_noColor = true;
+		g_logSyslog = true;
+	if (g_logSyslog || (getenv("NO_COLOR")))
+		g_logNoColor = true;
 #if defined(_WIN32)
-	if (!g_noColor)
+	if (!g_logNoColor)
 	{
-		g_noColor = true;
+		g_logNoColor = true;
 		// Set output mode to handle virtual terminal sequences
 		// Only works on Windows 10, but most users should use it anyway
 		HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -838,7 +838,7 @@ int main(int argc, char** argv)
 			{
 				dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 				if (SetConsoleMode(hOut, dwMode))
-					g_noColor = false;
+					g_logNoColor = false;
 			}
 		}
 	}
