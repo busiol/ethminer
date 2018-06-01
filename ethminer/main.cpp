@@ -822,9 +822,7 @@ int main(int argc, char** argv)
 
 	if (getenv("SYSLOG"))
 		g_syslog = true;
-	if (g_syslog)
-		g_noColor = true;
-	if (getenv("NO_COLOR"))
+	if (g_syslog || (getenv("NO_COLOR")))
 		g_noColor = true;
 #if defined(_WIN32)
 	if (!g_noColor)
