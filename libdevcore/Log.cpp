@@ -31,15 +31,8 @@ using namespace dev;
 
 // Logging
 int g_logVerbosity = 5;
-bool g_useColor = true;
+bool g_noColor = false;
 bool g_syslog = false;
-
-mutex x_logOverride;
-
-/// Map of Log Channel types to bool, false forces the channel to be disabled, true forces it to be enabled.
-/// If a channel has no entry, then it will output as long as its verbosity (LogChannel::verbosity) is less than
-/// or equal to the currently output verbosity (g_logVerbosity).
-static map<type_info const*, bool> s_logOverride;
 
 #ifdef _WIN32
 const char* LogChannel::name() { return EthGray "..."; }
@@ -51,30 +44,22 @@ const char* WarnChannel::name() { return EthOnRed EthBlackBold "  ✘"; }
 const char* NoteChannel::name() { return EthBlue "  ℹ"; }
 #endif
 
-LogOutputStreamBase::LogOutputStreamBase(char const* _id, std::type_info const* _info, unsigned _v):
+LogOutputStreamBase::LogOutputStreamBase(char const* _id, unsigned _v):
 	m_verbosity(_v)
 {
 	if ((int)_v <= g_logVerbosity)
 	{
-		Guard l(x_logOverride);
-		auto it = s_logOverride.find(_info);
-		if ((it != s_logOverride.end() && it->second) || it == s_logOverride.end())
+		char const* c_begin = "  " EthViolet;
+		if (g_syslog)
 		{
-			static char const* c_begin = "  " EthViolet;
-			static char const* c_sep1 = EthReset EthBlack "|" EthNavy;
-			static char const* c_sep2 = EthReset EthBlack "|" EthTeal;
-			static char const* c_end = EthReset "  ";
-			if (g_syslog) 
-			{
-				c_begin = "  " EthNavy;
-				m_sstr << c_begin << std::left << std::setw(8) << getThreadName() << c_sep2 << c_end;
-			} else {
-				time_t rawTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-				char buf[24];
-				if (strftime(buf, 24, "%X", localtime(&rawTime)) == 0)
-					buf[0] = '\0'; // empty if case strftime fails
-				m_sstr << _id << c_begin << buf << c_sep1 << std::left << std::setw(8) << getThreadName() << c_sep2 << c_end;
-			}
+			c_begin = "  " EthNavy;
+			m_sstr << c_begin << std::left << std::setw(8) << getThreadName() << " " EthReset;
+		} else {
+			time_t rawTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+			char buf[24];
+			if (strftime(buf, 24, "%X", localtime(&rawTime)) == 0)
+				buf[0] = '\0'; // empty if case strftime fails
+			m_sstr << _id << c_begin << buf << " " EthNavy << std::left << std::setw(8) << getThreadName() << " " EthReset;
 		}
 	}
 }
@@ -115,7 +100,7 @@ void dev::setThreadName(char const* _n)
 
 void dev::simpleDebugOut(std::string const& _s)
 {
-	if (g_useColor)
+	if (!g_noColor)
 	{
 		std::cerr << _s + '\n';
 		return;

@@ -33,7 +33,7 @@
 
 /// The logging system's current verbosity.
 extern int g_logVerbosity;
-extern bool g_useColor;
+extern bool g_noColor;
 extern bool g_syslog;
 
 namespace dev
@@ -67,7 +67,7 @@ struct NoteChannel: public LogChannel
 class LogOutputStreamBase
 {
 public:
-	LogOutputStreamBase(char const* _id, std::type_info const* _info, unsigned _v);
+	LogOutputStreamBase(char const* _id, unsigned _v);
 
 	template <unsigned N> void append(FixedHash<N> const& _t)
 	{
@@ -90,7 +90,7 @@ class LogOutputStream: LogOutputStreamBase
 public:
 	/// Construct a new object.
 	/// If _term is true the the prefix info is terminated with a ']' character; if not it ends only with a '|' character.
-	LogOutputStream(): LogOutputStreamBase(Id::name(), &typeid(Id), Id::verbosity) {}
+	LogOutputStream(): LogOutputStreamBase(Id::name(), Id::verbosity) {}
 
 	/// Destructor. Posts the accrued log entry to the g_logPost function.
 	~LogOutputStream() { if (Id::verbosity <= g_logVerbosity) simpleDebugOut(m_sstr.str()); }
